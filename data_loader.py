@@ -2,7 +2,6 @@ from __future__ import print_function, division
 import os
 import glob
 import cv2
-import random
 from skimage.io import imread
 from torch.utils.data import Dataset
 import albumentations as A
@@ -28,13 +27,14 @@ class BSDDB(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # randomly extract a patch from hard disk
         # random transform through albumentations for image augmentation
-        # img_patch = self._randomly_crop(img_mat)
-        # img_tran_patch = self._randomly_transform(img_patch)
         # Declare an augmentation pipeline
         transform = A.Compose([
             A.RandomCrop(width=self.patch_size, height=self.patch_size),
             A.HorizontalFlip(p=0.5),
             A.RandomBrightnessContrast(p=0.2),
+            A.RandomBrightness(limit=0.2, always_apply=False, p=0.2),
+            A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=1, alpha_coef=0.08, always_apply=False, p=0.2),
+            A.RandomGamma(gamma_limit=(80, 120), eps=None, always_apply=False, p=0.2)
         ])
 
         # Augment an image
@@ -42,14 +42,3 @@ class BSDDB(Dataset):
         transformed_image = transformed["image"]
 
         return transformed_image
-
-    def _randomly_crop(self, image_mat):
-        (h, w) = image_mat.shape[:2]
-        y = random.randint(1, h - self.patch_size)
-        x = random.randint(1, w - self.patch_size)
-        crop_img = image_mat[(y):(y + self.patch_size), (x):(x + self.patch_size)]
-        return crop_img
-
-    def _randomly_transform(self, item):
-       trans_item = item
-       return trans_item
