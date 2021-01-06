@@ -23,21 +23,18 @@ class BSDDB(Dataset):
         return self.fake_legth
 
     def __getitem__(self, idx):
+        # Randomly extract a patch from hard disk
         image = imread(self.img_paths[idx])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # randomly extract a patch from hard disk
-        # random transform through albumentations for image augmentation
         # Declare an augmentation pipeline
         transform = A.Compose([
             A.RandomCrop(width=self.patch_size, height=self.patch_size),
             A.HorizontalFlip(p=0.5),
             A.RandomBrightnessContrast(p=0.2),
-            A.RandomBrightness(limit=0.2, always_apply=False, p=0.2),
             A.RandomFog(fog_coef_lower=0.3, fog_coef_upper=1, alpha_coef=0.08, always_apply=False, p=0.2),
             A.RandomGamma(gamma_limit=(80, 120), eps=None, always_apply=False, p=0.2)
         ])
-
-        # Augment an image
+        # Random Augment an image
         transformed = transform(image=image)
         transformed_image = transformed["image"]
 
