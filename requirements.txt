@@ -1,0 +1,5 @@
+scikit-image
+pytorch==1.7.1
+matplotlib
+cv2
+albumentations
